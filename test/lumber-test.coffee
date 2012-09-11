@@ -18,7 +18,6 @@ describe "Lumber", () ->
     assert.isObject lumber.encoders
     assert.isObject lumber.util
 
-
   it "should export defaults", ->
     assert.isObject lumber.defaults
     assert.isObject lumber.defaults.levels
@@ -39,10 +38,10 @@ describe "Lumber", () ->
     assert.isFunction lumber.Encoder
 
   describe "npm package", ()->
-    beforeEach (callback) ->
-      fs.readFile path.join(__dirname, "..", "package.json"), callback
 
-    it "has the correct version": (err, data) ->
-      assert.isNull err
-      s = JSON.parse(data.toString())
-      assert.equal lumber.version, s.version
+    it "has the correct version", (done) ->
+      fs.readFile path.join(__dirname, "..", "package.json"), (err, data) ->
+        return done(err) if err?
+        s = JSON.parse(data.toString())
+        assert.equal lumber.version, s.version
+        done()
