@@ -4,100 +4,83 @@ logger-test.js: Tests to ensure logger class functions properly
 (c) 2012 Panther Development
 MIT LICENCE
 ###
-fs = require("fs")
-path = require("path")
-vows = require("vows")
-assert = require("assert")
-cov = require("../coverage")
-lumber = cov.require("../lib/lumber")
+fs = require "fs"
+path = require "path"
+mocha = require "mocha"
+assert = require("chai").assert
+lumber = require "../../lib/lumber"
 
-#make test fail if called
+logger = undefined
+describe "Logger", ->
+  beforeEach () ->
+    logger = new lumber.Logger()
 
-#make test pass if called
-
-#make test pass if called
-
-#make test pass if called
-
-#make test fail if called
-
-#make test fail if called
-
-#make test fail if called
-vows.describe("Logger").addBatch("logger module":
-  topic: ->
-    new lumber.Logger()
-
-  has:
-    "the correct deaults": (logger) ->
+    it "has the correct deaults",  ->
       assert.isObject logger.levels
       assert.deepEqual logger.levels, lumber.defaults.levels
       assert.deepEqual logger.colors, lumber.defaults.colors
 
-    "the correct functions": (logger) ->
+    it "has the correct functions",  ->
       assert.isFunction logger.log
       Object.keys(logger.levels).forEach (key) ->
         assert.isFunction logger[key]
 
+trans = undefined
+describe "Logger", ->
+  beforeEach ->
+    trans =
+      level: "info"
+      log: ->
 
-  should:
-    topic: ->
-      trans =
-        level: "info"
-        log: ->
+      encoder: {}
 
-        encoder: {}
+    logger = new lumber.Logger(transports: [trans])
 
-      logger = new lumber.Logger(transports: [trans])
-      trans: trans
-      logger: logger
+  it "does not call silent log", ->
+    trans.log = ->
+      assert.isTrue false
 
-    "not call silent log": (o) ->
-      o.trans.log = ->
-        assert.isTrue false
+    logger.log "silent", "message"
+    logger.silent "message"
 
-      o.logger.log "silent", "message"
-      o.logger.silent "message"
+  it "calls error log", ->
+    trans.log = ->
+      assert.isTrue true
 
-    "call error log": (o) ->
-      o.trans.log = ->
-        assert.isTrue true
+    logger.log "error", "message"
+    logger.error "message"
 
-      o.logger.log "error", "message"
-      o.logger.error "message"
+  it "calls warn log", ->
+    trans.log = ->
+      assert.isTrue true
 
-    "call warn log": (o) ->
-      o.trans.log = ->
-        assert.isTrue true
+    logger.log "warn", "message"
+    logger.warn "message"
 
-      o.logger.log "warn", "message"
-      o.logger.warn "message"
+  it "calls info log", ->
+    trans.log = ->
+      assert.isTrue true
 
-    "call info log": (o) ->
-      o.trans.log = ->
-        assert.isTrue true
+    logger.log "info", "message"
+    logger.info "message"
 
-      o.logger.log "info", "message"
-      o.logger.info "message"
+  it "not call verbose log", ->
+    trans.log = ->
+      assert.isTrue false
 
-    "not call verbose log": (o) ->
-      o.trans.log = ->
-        assert.isTrue false
+    logger.log "verbose", "message"
+    logger.verbose "message"
 
-      o.logger.log "verbose", "message"
-      o.logger.verbose "message"
+  it "not call debug log", ->
+    trans.log = ->
+      assert.isTrue false
 
-    "not call debug log": (o) ->
-      o.trans.log = ->
-        assert.isTrue false
+    logger.log "debug", "message"
+    logger.debug "message"
 
-      o.logger.log "debug", "message"
-      o.logger.debug "message"
+  it "not call silly log", ->
+    trans.log = ->
+      assert.isTrue false
 
-    "not call silly log": (o) ->
-      o.trans.log = ->
-        assert.isTrue false
-
-      o.logger.log "silly", "message"
-      o.logger.silly "message"
-).export module
+    logger.log "silly", "message"
+    logger.silly "message"
