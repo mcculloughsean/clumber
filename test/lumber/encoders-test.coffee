@@ -4,19 +4,15 @@ encoders-test.js: Tests to ensure core encoders load properly
 (c) 2012 Panther Development
 MIT LICENCE
 ###
-fs = require("fs")
-path = require("path")
-vows = require("vows")
-assert = require("assert")
-cov = require("../coverage")
-encoders = cov.require("../lib/lumber/encoders")
-vows.describe("Encoders").addBatch("encoders loader":
-  topic: ->
-    null
+fs = require "fs"
+path = require "path"
+mocha = require "mocha"
+assert = require("chai").assert
+encoders = require "../../lib/lumber/encoders"
 
-  "should have the correct exports": ->
+describe "Encoders", ->
+
+  it "should have the correct exports", ->
     assert.isObject encoders
     assert.isFunction encoders.Text
     assert.isFunction encoders.Json
-    assert.isFunction encoders.Xml
-).export module
