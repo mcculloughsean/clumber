@@ -6,29 +6,29 @@ MIT LICENSE
 ###
 re = (str) ->
   new RegExp(str.replace(/\\\\(.)/g, "\\$1"))
-fs = require("fs")
-path = require("path")
-vows = require("vows")
-assert = require("assert")
-cov = require("../../coverage")
-lumber = cov.require("../lib/lumber")
-vows.describe("Json").addBatch("json encoder":
-  topic: ->
-    new lumber.encoders.Json()
+fs = require "fs"
+path = require "path"
+mocha = require "mocha"
+assert = require("chai").assert
+lumber = require "../../../lib/lumber"
 
-  has:
-    "the correct defaults": (enc) ->
-      assert.isFalse enc.colorize
-      assert.isTrue enc.timestamp
-      assert.equal enc.headFormat, "%L"
-      assert.equal enc.dateFormat, "isoDateTime"
-      assert.equal enc.contentType, "application/json"
+enc = undefined
+describe "Json", ->
+  beforeEach ->
+    enc = new lumber.encoders.Json()
 
-    "has the correct functions": (enc) ->
-      assert.isFunction enc.encode
+  it "has the correct defaults", ->
+    assert.isFalse enc.colorize
+    assert.isTrue enc.timestamp
+    assert.equal enc.headFormat, "%L"
+    assert.equal enc.dateFormat, "isoDateTime"
+    assert.equal enc.contentType, "application/json"
 
-  "encode works":
-    "without timestamp, or meta": (enc) ->
+  it "has the correct functions", ->
+    assert.isFunction enc.encode
+
+  describe "encode", ->
+    it "works without timestamp, or meta", ->
       enc.timestamp = false
       assert.equal enc.encode("info", "The Message"), JSON.stringify(
         level: "info"
@@ -46,7 +46,7 @@ vows.describe("Json").addBatch("json encoder":
         message: "The Message"
       )
 
-    "with timestamp, without meta": (enc) ->
+    it "works with timestamp, without meta", ->
       enc.timestamp = true
       assert.match enc.encode("info", "The Message"), re(JSON.stringify(
         level: "info"
@@ -67,7 +67,7 @@ vows.describe("Json").addBatch("json encoder":
         timestamp: "[\\d\\-]+T[\\d:]+"
       ))
 
-    "without timestamp, with meta": (enc) ->
+    it "works without timestamp, with meta", ->
       enc.timestamp = false
       assert.equal enc.encode("info", "The Message",
         meta: "data"
@@ -97,7 +97,7 @@ vows.describe("Json").addBatch("json encoder":
           meta: "data"
       )
 
-    "with timestamp, and meta": (enc) ->
+    it "works with timestamp, and meta", ->
       enc.timestamp = true
       assert.match enc.encode("info", "The Message",
         meta: "data"
@@ -129,4 +129,3 @@ vows.describe("Json").addBatch("json encoder":
         meta:
           meta: "data"
       ))
-).export module
