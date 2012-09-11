@@ -1,0 +1,75 @@
+###
+webservice-test.js: Tests the webservice transport
+
+(c) 2012 Panther Development
+MIT LICENSE
+###
+fs = require("fs")
+path = require("path")
+http = require("http")
+vows = require("vows")
+assert = require("assert")
+cov = require("../../coverage")
+lumber = cov.require("../lib/lumber")
+vows.describe("Webservice").addBatch("webservice transport":
+  topic: ->
+    new lumber.transports.Webservice()
+
+  has:
+    "the correct defaults": (trans) ->
+      assert.instanceOf trans.encoder, lumber.encoders.Json
+      assert.isFunction trans.encoder.encode
+      assert.equal trans.level, "info"
+      assert.equal trans.method, "POST"
+      assert.deepEqual trans.headers,
+        "Content-Type": "application/json"
+
+      assert.isNull trans.url
+      assert.isNull trans.auth
+      assert.isFalse trans.secure
+
+    "the correct functions": (trans) ->
+      assert.isFunction trans.log
+
+  should:
+    topic: (trans) ->
+      logger = new lumber.Logger(transports: [new lumber.transports.Webservice(url: "http://localhost:91234")])
+      data = undefined
+      that = this
+      server = http.createServer((req, res) ->
+        req.on "data", (chunk) ->
+          unless data
+            data = chunk
+          else
+            data += chunk
+
+        req.on "end", ->
+          res.writeHead 200,
+            "Content-Type": "application/json"
+
+          res.end JSON.stringify(works: "yeah")
+
+      ).listen(91234, "127.0.0.1", ->
+        logger.log "info", "A message"
+        logger.on "log", ->
+          args = Array::slice.call(arguments_)
+          args.push data.toString()
+          that.callback.apply that, args
+
+      )
+
+    "get the correct response": (err, msg, level, name, url, statusCode, resData, postData) ->
+      assert.isTrue not err
+      assert.equal statusCode, 200
+      assert.equal resData, JSON.stringify(works: "yeah")
+
+    "pass the correct params": (err, msg, level, name, url, statusCode, resData, postData) ->
+      assert.isTrue not err
+      assert.equal level, "info"
+      assert.equal name, "webservice"
+      assert.equal url, "http://localhost:91234"
+
+    "post the properly encoded data": (err, msg, level, name, url, statusCode, resData, postData) ->
+      assert.isTrue not err
+      assert.equal msg.trim(), postData.trim()
+).export module
