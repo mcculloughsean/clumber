@@ -6,57 +6,43 @@ MIT LICENCE
 ###
 fs = require("fs")
 path = require("path")
-vows = require("vows")
-assert = require("assert")
-cov = require("./coverage")
-lumber = cov.require("../lib/lumber")
+mocha = require("mocha")
+assert = require("chai").assert
+lumber = require("../lib/lumber")
 
-#global export
+describe "Lumber", () ->
 
-#transports
-
-#encoders
-
-#utils
-
-#core
-
-#config
-
-#levels functions, for default logger
-#
-#              Object.keys(lumber.defaults.levels).forEach(function(k) {
-#              assert.isFunction(lumber[k]);
-#              });
-#            
-vows.describe("Lumber").addBatch("lumber module":
-  topic: ->
-    null
-
-  "should have the correct exports": ->
+  it "should export subobjects", ->
     assert.isObject lumber
     assert.isObject lumber.transports
-    assert.isFunction lumber.transports.Console
-    assert.isFunction lumber.transports.File
-    assert.isFunction lumber.transports.Webservice
     assert.isObject lumber.encoders
-    assert.isFunction lumber.encoders.Json
-    assert.isFunction lumber.encoders.Xml
-    assert.isFunction lumber.encoders.Text
     assert.isObject lumber.util
-    assert.isFunction lumber.Logger
-    assert.isFunction lumber.Transport
-    assert.isFunction lumber.Encoder
+
+
+  it "should export defaults", ->
     assert.isObject lumber.defaults
     assert.isObject lumber.defaults.levels
     assert.isObject lumber.defaults.colors
 
-  should:
-    topic: ->
-      fs.readFile path.join(__dirname, "..", "package.json"), @callback
+  it "should export core transports", ->
+    assert.isFunction lumber.transports.Console
+    assert.isFunction lumber.transports.File
+    assert.isFunction lumber.transports.Webservice
 
-    "have the correct version": (err, data) ->
+  it "should export core encoders", ->
+    assert.isFunction lumber.encoders.Json
+    assert.isFunction lumber.encoders.Text
+
+  it "should export core", ->
+    assert.isFunction lumber.Logger
+    assert.isFunction lumber.Transport
+    assert.isFunction lumber.Encoder
+
+  describe "npm package", ()->
+    beforeEach (callback) ->
+      fs.readFile path.join(__dirname, "..", "package.json"), callback
+
+    it "has the correct version": (err, data) ->
       assert.isNull err
       s = JSON.parse(data.toString())
       assert.equal lumber.version, s.version
-).export module

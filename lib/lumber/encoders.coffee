@@ -18,12 +18,12 @@ common = require("./common")
 # Setup getters for encoders
 #/////////////////////////
 fs.readdirSync(path.join(__dirname, "encoders")).forEach (file) ->
-  
+
   #ignore non-js files, and base class
-  return  if file.match(/\.js$/) is null or file is "encoder.js"
-  e = file.replace(".js", "")
+  return  if file is "encoders.coffee"
+  e = file.replace(/.(js|coffee)/, "")
   name = common.titleCase(e)
-  
+
   #ignore base class
   encoders.__defineGetter__ name, ->
     require("./encoders/" + e)[name]
