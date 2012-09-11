@@ -4,19 +4,15 @@ transports-test.js: Tests to ensure core transports load properly
 (c) 2012 Panther Development
 MIT LICENCE
 ###
-fs = require("fs")
-path = require("path")
-vows = require("vows")
-assert = require("assert")
-cov = require("../coverage")
-trans = cov.require("../lib/lumber/transports")
-vows.describe("Transports").addBatch("transports loader":
-  topic: ->
-    null
+fs = require "fs"
+path = require "path"
+mocha = require "mocha"
+assert = require("chai").assert
+trans = require "../../lib/lumber/transports"
 
-  "should have the correct exports": ->
+describe "Transports", ->
+  it "should have the correct exports", ->
     assert.isObject trans
     assert.isFunction trans.Console
     assert.isFunction trans.File
     assert.isFunction trans.Webservice
-).export module
