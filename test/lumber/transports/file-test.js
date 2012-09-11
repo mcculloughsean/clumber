@@ -24,6 +24,7 @@ vows.describe('File').addBatch({
 		assert.isFunction(trans.encoder.encode);
 		assert.equal(trans.level, 'info');
 		assert.equal(trans.filename, path.resolve('app.log'));
+		assert.equal(trans.rotateStyle, 'sequentially');
             },
             'the correct functions': function(trans) {
 		assert.isFunction(trans.log);
