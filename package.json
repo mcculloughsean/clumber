@@ -1,11 +1,11 @@
 {
-  "name": "lumber",
-  "description": "A custom, async, extensible logging library",
+  "name": "clumber",
+  "description": "A port of lumber in coffeescript",
   "version": "0.0.5",
-  "author": "Chad Engler <chad@pantherdev.com>",
+  "author": "Sean McCullough <mcculloughsean@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/englercj/lumber.git"
+    "url": "https://github.com/mcculloughsean/clumber.git"
   },
   "keywords": [ "log", "logging", "logger", "tools", "cli" ],
   "dependencies": {
