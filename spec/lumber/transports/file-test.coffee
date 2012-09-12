@@ -32,6 +32,7 @@ describe "File", ->
       logger = new lumber.Logger(transports: [trans])
       logger.log "info", "A message"
       logger.on "log", (err, msg, level, name, filename) ->
+        console.log "LOG CALLBACK", arguments
         logResponse = { msg, level, name, filename }
         done err
 
