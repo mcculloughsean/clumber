@@ -1,13 +1,11 @@
-lumber = exports
+module.exports = lumber = {}
 
 # Expose pkginfo
 require("pkginfo") module, "version"
 
 
 # Expose core
-lumber.Logger = require("./lumber/logger").Logger
-lumber.Transport = require("./lumber/transports/transport").Transport
-lumber.Encoder = require("./lumber/encoders/encoder").Encoder
+lumber.Logger = require("./lumber/logger")
 
 # Include logging transports
 lumber.transports = require("./lumber/transports")

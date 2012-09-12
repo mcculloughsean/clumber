@@ -21,59 +21,53 @@ via one or more transports
 @constructor
 @param {object} options The options for this logger
 ###
-Logger = exports.Logger = (options) ->
-  self = this
-  events.EventEmitter.call self
-  options = options or {}
-  self.levels = options.levels or lumber.defaults.levels
-  self.colors = options.colors or lumber.defaults.colors
-  self.transports = options.transports or [new lumber.transports.Console()]
-  self.level = options.level or "info"
 
-  #create functions for log levels
-  Object.keys(self.levels).forEach (key) ->
-    self[key] = ->
-      args = Array::slice.call(arguments)
-      args.unshift key
-      self.log.apply self, args
+class Logger extends events.EventEmitter
+  constructor: (options={}) ->
+    super()
+    @levels = options.levels or lumber.defaults.levels
+    @colors = options.colors or lumber.defaults.colors
+    @transports = options.transports or [new lumber.transports.Console()]
+    @level = options.level or "info"
 
-
-  #pass alongs
-  self.transports.forEach (trans) ->
-    trans.parent = self
-    trans.encoder.colors = self.colors
+    #create functions for log levels
+    Object.keys(@levels).forEach (key) =>
+      this[key] = =>
+        args = Array::slice.call(arguments)
+        args.unshift key
+        @log.apply this, args
 
 
+    #pass alongs
+    @transports.forEach (trans) ->
+      trans.parent = this
+      trans.encoder.colors = @colors
 
-#////////
-# Inherits from EventEmitter
-#/////////////////////////
-util.inherits Logger, events.EventEmitter
+  #////////
+  # Public Methods
+  #/////////////////////////
+  log: ->
+    args = lumber.util.prepareArgs(Array::slice.call(arguments))
+    cb = args.cb
+    done = 0
+    errors = []
+    console.log @transports
+    async.forEach @transports, (trans, next) ->
 
-#////////
-# Public Methods
-#/////////////////////////
-Logger::log = ->
-  self = this
-  args = lumber.util.prepareArgs(Array::slice.call(arguments))
-  cb = args.cb
-  done = 0
-  errors = []
-  async.forEach self.transports, ((trans, next) ->
+      #if we aren't a silent level &&
+      #this isn't a silent log &&
+      #this log's level <= this transport's level
+      if @levels[@level] >= 0 and @levels[args.level] >= 0 and @levels[args.level] <= @levels[trans.level]
+        trans.log args, =>
+          a = Array::slice.call(arguments)
+          a.unshift "log"
+          @emit.apply this, a
+          next()
 
-    #if we aren't a silent level &&
-    #this isn't a silent log &&
-    #this log's level <= this transport's level
-    if self.levels[self.level] >= 0 and self.levels[args.level] >= 0 and self.levels[args.level] <= self.levels[trans.level]
-      trans.log args, ->
-        a = Array::slice.call(arguments)
-        a.unshift "log"
-        self.emit.apply self, a
+      else
         next()
+    , (err) ->
+      @emit "logged", err
+      cb err  if cb
 
-    else
-      next()
-  ), (err) ->
-    self.emit "logged", err
-    cb err  if cb
-
+module.exports = Logger

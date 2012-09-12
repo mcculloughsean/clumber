@@ -11,7 +11,7 @@ assert = require("chai").assert
 lumber = require "../../lib/lumber"
 
 logger = undefined
-describe "Logger", ->
+describe "Logger Properties", ->
   beforeEach () ->
     logger = new lumber.Logger()
 
@@ -26,15 +26,14 @@ describe "Logger", ->
         assert.isFunction logger[key]
 
 trans = undefined
-describe "Logger", ->
+describe "Logger functions", ->
   beforeEach ->
     trans =
       level: "info"
-      log: ->
-
       encoder: {}
 
     logger = new lumber.Logger(transports: [trans])
+    console.log logger
 
   it "does not call silent log", ->
     trans.log = ->

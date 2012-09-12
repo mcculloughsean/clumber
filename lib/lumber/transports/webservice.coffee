@@ -9,20 +9,21 @@ MIT LICENSE
 #////////
 # Required Includes
 #/////////////////////////
-util = require("util")
-url = require("url")
-http = require("http")
-https = require("https")
-lumber = require("../../lumber")
+util = require "util"
+url = require "url"
+http = require "http"
+https = require "https"
+events = require "events"
+lumber = require "../../lumber"
 
 ###
 Webservice Transport
 @implements {Transport}
 ###
-class Webservice extends lumber.Transport
-  constructor: (options) ->
-    lumber.Transport.call self
-    options = options or {}
+class Webservice extends events.EventEmitter
+  constructor: (options={}) ->
+    super()
+
     @encoder = lumber.util.checkOption(options.encoder, "json")
     @level = lumber.util.checkOption(options.level, "info")
     @url = lumber.util.checkOption(options.url, null)

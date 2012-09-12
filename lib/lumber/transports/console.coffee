@@ -9,19 +9,20 @@ MIT LICENSE
 #////////
 # Required Includes
 #/////////////////////////
-util = require("util")
-lumber = require("../../lumber")
+util = require "util"
+events = require "events"
+lumber = require "../../lumber"
 
 ###
 Console Transport
 @implements {Transport}
 ###
-class Console extends lumber.Transport
-  constructor: (options) ->
-    lumber.Transport.call this
-    options = options or {}
-    @encoder = lumber.util.checkOption(options.encoder, "text")
-    @level = lumber.util.checkOption(options.level, "info")
+class Console extends events.EventEmitter
+  constructor: (options={}) ->
+    super()
+
+    @encoder = lumber.util.checkOption options.encoder, "text"
+    @level = lumber.util.checkOption options.level, "info"
     @name = "console"
     if typeof (@encoder) is "string"
       e = lumber.util.titleCase(@encoder)

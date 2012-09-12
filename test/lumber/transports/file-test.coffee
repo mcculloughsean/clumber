@@ -33,7 +33,7 @@ describe "File", ->
       logger.log "info", "A message"
       logger.on "log", (err, msg, level, name, filename) ->
         logResponse = { msg, level, name, filename }
-        done(err)
+        done err
 
     afterEach ->
       try

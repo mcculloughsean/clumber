@@ -11,21 +11,22 @@ MIT LICENSE
 #////////
 # Required Includes
 #/////////////////////////
-util = require("util")
-fs = require("fs")
-path = require("path")
-lumber = require("../../lumber")
+util = require "util"
+fs = require "fs"
+path = require "path"
+events = require "events"
+lumber = require "../../lumber"
 
 ###
 File Transport
 @constructor
 @implements {Transport}
 ###
-class File extends lumber.Transport
+class File extends events.EventEmitter
 
-  constructor: (options) ->
-    lumber.Transport.call this
-    options = options or {}
+  constructor: (options={}) ->
+    super()
+
     @encoder = lumber.util.checkOption options.encoder, "json"
     @level = lumber.util.checkOption options.level, "info"
     @filename = lumber.util.checkOption options.filename, path.resolve("app.log")
@@ -103,7 +104,7 @@ class File extends lumber.Transport
       cb true  if cb
 
       #check file sizes for rotation
-      @_checkSize (err) ->
+      @_checkSize (err) =>
 
         #after rotation create stream
         @_stream = fs.createWriteStream @filename,
@@ -123,7 +124,7 @@ class File extends lumber.Transport
     if @_stream
       @_stream.end()
       @_stream.destroySoon()
-      @_drain =>
+      @_drain ->
         @emit "closed"
         cb null  if cb
 
@@ -133,29 +134,28 @@ class File extends lumber.Transport
       cb null  if cb
 
   _drain: (cb) ->
-
     #easy way to handle drain callback
     @_stream.once "drain", =>
+      console.log this
       @emit "drain"
       cb()  if cb
 
 
   _flush: (cb) ->
-    self = this
     if @_buffer.length is 0
       @emit "flush"
-      cb null  if cb
+      cb null if cb
       return
 
     #start a write for each one
-    @_buffer.forEach (log) ->
-      ((msg, args, cb) ->
-        process.nextTick ->
+    @_buffer.forEach (log) =>
+      ((msg, args, cb) =>
+        process.nextTick =>
           @_write msg + "\n", (err) ->
             cb err, msg, args.level, @name, @filename  if cb
 
 
-      ).apply self, log
+      ).apply this, log
 
 
     #after writes are started clear buffer
@@ -168,7 +168,6 @@ class File extends lumber.Transport
 
 
   _checkSize: (cb) ->
-    self = this
 
     #check size of file
     fs.stat @filename, (err, stats) ->
@@ -188,7 +187,6 @@ class File extends lumber.Transport
 
 
   _rotateLogs: (cb) ->
-    self = this
     max = 1
     exists = false
 
@@ -204,7 +202,7 @@ class File extends lumber.Transport
     @_close ->
 
       #loop through each file and move their numbers up
-      @_doLogRotate max, (err) ->
+      @_doLogRotate max, (err) =>
         if err
           cb err  if cb
           return
@@ -221,8 +219,6 @@ class File extends lumber.Transport
 
 
   _doLogRotate: (num, cb) ->
-    self = this
-
     #if we at 0 we are done
     unless num
       cb null  if cb

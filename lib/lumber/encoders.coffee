@@ -26,6 +26,6 @@ fs.readdirSync(path.join(__dirname, "encoders")).forEach (file) ->
 
   #ignore base class
   encoders.__defineGetter__ name, ->
-    require("./encoders/" + e)[name]
+    require("./encoders/" + e)
 
 
