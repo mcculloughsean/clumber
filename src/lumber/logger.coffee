@@ -59,7 +59,6 @@ class Logger extends events.EventEmitter
         trans.log args, =>
           a = Array::slice.call(arguments)
           a.unshift "log"
-          console.log "emitting a log event, there are #{@transports.length} transports "
           @emit.apply this, a
           next()
 

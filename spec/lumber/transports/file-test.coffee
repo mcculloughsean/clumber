@@ -33,7 +33,6 @@ describe "File", ->
       logger.log "info", "A message"
       logger.on "log", (err, msg, level, name, filename) ->
         return unless msg?
-        console.log "LOG CALLBACK", arguments
         logResponse = { msg, level, name, filename }
         done err
 
@@ -53,6 +52,5 @@ describe "File", ->
       assert.equal logResponse.filename, path.resolve "app.log"
 
     it "writes properly enocoded data", () ->
-      console.log "LOG RESPONSE ENCODED DATA", logResponse
       assert.equal logResponse.msg.trim(), fs.readFileSync(path.resolve("app.log"), "utf8").trim()
 
