@@ -1,38 +1,38 @@
-###
-webservice-test.js: Tests the webservice transport
+#webservice-test.js: Tests the webservice transport
+#
+#(c) 2012 Panther Development
+#MIT LICENSE
 
-(c) 2012 Panther Development
-MIT LICENSE
-###
-fs = require("fs")
-path = require("path")
-http = require("http")
-vows = require("vows")
-assert = require("assert")
-cov = require("../../coverage")
-lumber = cov.require("../lib/lumber")
-vows.describe("Webservice").addBatch("webservice transport":
-  topic: ->
-    new lumber.transports.Webservice()
+fs = require "fs"
+path = require "path"
+mocha = require "mocha"
+assert = require("chai").assert
+lumber = require "../../../lib/lumber"
 
-  has:
-    "the correct defaults": (trans) ->
-      assert.instanceOf trans.encoder, lumber.encoders.Json
-      assert.isFunction trans.encoder.encode
-      assert.equal trans.level, "info"
-      assert.equal trans.method, "POST"
-      assert.deepEqual trans.headers,
-        "Content-Type": "application/json"
+trans = undefined
+describe "Webservice", ->
+  beforeEach ->
+    trans = new lumber.transports.Webservice()
+    console.log "foo bar baz"
 
-      assert.isNull trans.url
-      assert.isNull trans.auth
-      assert.isFalse trans.secure
+  it "has the correct defaults", ->
+    assert.instanceOf trans.encoder, lumber.encoders.Json
+    assert.isFunction trans.encoder.encode
+    assert.equal trans.level, "info"
+    assert.equal trans.method, "POST"
+    assert.deepEqual trans.headers,
+      "Content-Type": "application/json"
 
-    "the correct functions": (trans) ->
-      assert.isFunction trans.log
+    assert.isNull trans.url
+    assert.isNull trans.auth
+    assert.isFalse trans.secure
 
-  should:
-    topic: (trans) ->
+  it "has the correct functions", ->
+    assert.isFunction trans.log
+
+  describe "functionally", ->
+    logger = undefined
+    beforeEach ->
       logger = new lumber.Logger(transports: [new lumber.transports.Webservice(url: "http://localhost:91234")])
       data = undefined
       that = this
@@ -72,4 +72,3 @@ vows.describe("Webservice").addBatch("webservice transport":
     "post the properly encoded data": (err, msg, level, name, url, statusCode, resData, postData) ->
       assert.isTrue not err
       assert.equal msg.trim(), postData.trim()
-).export module
