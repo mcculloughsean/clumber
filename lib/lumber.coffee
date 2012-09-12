@@ -3,6 +3,12 @@ lumber = exports
 # Expose pkginfo
 require("pkginfo") module, "version"
 
+
+# Expose core
+lumber.Logger = require("./lumber/logger").Logger
+lumber.Transport = require("./lumber/transports/transport").Transport
+lumber.Encoder = require("./lumber/encoders/encoder").Encoder
+
 # Include logging transports
 lumber.transports = require("./lumber/transports")
 
@@ -11,11 +17,6 @@ lumber.encoders = require("./lumber/encoders")
 
 # Expose utilities
 lumber.util = require("./lumber/common")
-
-# Expose core
-lumber.Logger = require("./lumber/logger").Logger
-lumber.Transport = require("./lumber/transports/transport").Transport
-lumber.Encoder = require("./lumber/encoders/encoder").Encoder
 
 # Expose defaults
 lumber.defaults =

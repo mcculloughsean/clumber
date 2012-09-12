@@ -11,27 +11,20 @@ MIT LICENSE
 #/////////////////////////
 events = require("events")
 util = require("util")
-lumber = require("../../lumber")
 
 ###
 Base Transport
 @interface
 ###
-Transport = exports.Transport = (options) ->
-  events.EventEmitter.call this
+class Transport extends events.EventEmitter
+  constructor: (options) ->
+    events.EventEmitter.call this
+
+  #Logs the string via this transport, using
+  #the encoder specified
+  #@param {object} args The arguments for the log
+
+  log: (args) ->
 
 
-#////////
-# Inherits from EventEmitter
-#/////////////////////////
-util.inherits Transport, events.EventEmitter
-
-#////////
-# Public Methods
-#/////////////////////////
-###
-Logs the string via this transport, using
-the encoder specified
-@param {object} args The arguments for the log
-###
-Transport::log = (args) ->
+module.exports.Transport = Transport

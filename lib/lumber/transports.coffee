@@ -25,7 +25,7 @@ fs.readdirSync(path.join(__dirname, "transports")).forEach (file) ->
   name = common.titleCase(t)
 
   #ignore base class
-  transports.__defineGetter__ name, ->
+  transports[name] =
     require("./transports/" + t)[name]
 
 
