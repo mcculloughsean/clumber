@@ -24,7 +24,7 @@
   },
   "main": "./lib/lumber",
   "scripts": {
-    "test": "./node_modules/.bin/mocha --reporter list -r coffee-script test/**/**/**.coffee"
+    "test": "./node_modules/.bin/mocha --reporter list --compilers coffee:coffee-script  --recursive  test/"
   },
   "engines": {
     "node": ">= 0.6.0"
