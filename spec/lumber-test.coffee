@@ -34,8 +34,6 @@ describe "Lumber", () ->
 
   it "should export core", ->
     assert.isFunction lumber.Logger
-    assert.isFunction lumber.Transport
-    assert.isFunction lumber.Encoder
 
   describe "npm package", ()->
 

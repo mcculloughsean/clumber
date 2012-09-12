@@ -38,7 +38,7 @@ class Webservice extends events.EventEmitter
         @encoder = new lumber.encoders[e]()
       else
         throw new Error("Unknown encoder passed: " + @encoder)
-    @headers = "Content-Type": self.encoder.contentType  unless self.headers
+    @headers = "Content-Type": @encoder.contentType  unless @headers
 
 
 
@@ -60,7 +60,7 @@ class Webservice extends events.EventEmitter
     opts.port = opts.port or ((if secure then 443 else 80))
     opts.method = @method
     opts.headers = @headers
-    opts.auth = @auth  if self.auth
+    opts.auth = @auth  if @auth
     if @secure
       req = https.request(opts)
     else
@@ -75,10 +75,10 @@ class Webservice extends events.EventEmitter
           data += chunk
 
       res.on "end", =>
-        cb null, msg, args.level, @name, self.url, res.statusCode, data  if cb
+        cb null, msg, args.level, @name, @url, res.statusCode, data  if cb
 
       res.on "close", (err) =>
-        cb err, msg, args.level, @name, self.url, res.statusCode, data  if cb
+        cb err, msg, args.level, @name, @url, res.statusCode, data  if cb
 
 
     req.on "error", (err) =>
