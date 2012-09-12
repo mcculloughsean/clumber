@@ -4,52 +4,52 @@ file-test.js: Tests the file transport
 (c) 2012 Panther Development
 MIT LICENSE
 ###
-fs = require("fs")
-path = require("path")
-vows = require("vows")
-assert = require("assert")
-cov = require("../../coverage")
-lumber = cov.require("../lib/lumber")
-vows.describe("File").addBatch("file transport":
-  topic: ->
-    new lumber.transports.File()
+fs = require "fs"
+path = require "path"
+mocha = require "mocha"
+assert = require("chai").assert
+lumber = require "../../../lib/lumber"
 
-  has:
-    "the correct defaults": (trans) ->
-      assert.instanceOf trans.encoder, lumber.encoders.Json
-      assert.isFunction trans.encoder.encode
-      assert.equal trans.level, "info"
-      assert.equal trans.filename, path.resolve("app.log")
+trans = undefined
+describe "File", ->
+  beforeEach ->
+    trans = new lumber.transports.File()
 
-    "the correct functions": (trans) ->
-      assert.isFunction trans.log
+  it "has the correct defaults", ->
+    assert.instanceOf trans.encoder, lumber.encoders.Json
+    assert.isFunction trans.encoder.encode
+    assert.equal trans.level, "info"
+    assert.equal trans.filename, path.resolve("app.log")
 
-  should:
-    topic: (trans) ->
+  it "the correct functions", ->
+    assert.isFunction trans.log
+
+  describe "functionally", ->
+    logResponse = undefined
+    beforeEach (done) ->
       try
         fs.unlinkSync path.resolve("app.log")
       logger = new lumber.Logger(transports: [trans])
       logger.log "info", "A message"
-      logger.on "log", @callback
+      logger.on "log", (err, msg, level, name, filename) ->
+        logResponse = { msg, level, name, filename }
+        done(err)
 
-    "create the proper file": (err, msg, level, name, filename) ->
+    afterEach ->
+      try
+        fs.unlinkSync path.resolve("app.log")
+
+    it "creates the proper file", () ->
       f = undefined
       try
         f = fs.statSync(path.resolve("app.log"))
-      assert.isTrue not err
       assert.isTrue !!f
 
-    "pass the correct params": (err, msg, level, name, filename) ->
-      assert.isTrue not err
-      assert.equal level, "info"
-      assert.equal name, "file"
-      assert.equal filename, path.resolve("app.log")
+    it "passes the correct params", () ->
+      assert.equal logResponse.level, "info"
+      assert.equal logResponse.name, "file"
+      assert.equal logResponse.filename, path.resolve("app.log")
 
-    "write properly enocoded data": (err, msg, level, name, filename) ->
-      assert.isTrue not err
-      assert.equal msg.trim(), fs.readFileSync(path.resolve("app.log"), "utf8").trim()
+    it "writes properly enocoded data", () ->
+      assert.equal logResponse.msg.trim(), fs.readFileSync(path.resolve("app.log"), "utf8").trim()
 
-    teardown: (err) ->
-      try
-        fs.unlinkSync path.resolve("app.log")
-).export module
