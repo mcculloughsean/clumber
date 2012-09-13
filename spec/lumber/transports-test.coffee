@@ -15,4 +15,3 @@ describe "Transports", ->
     assert.isObject trans
     assert.isFunction trans.Console
     assert.isFunction trans.File
-    assert.isFunction trans.Webservice

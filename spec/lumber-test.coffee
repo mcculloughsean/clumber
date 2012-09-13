@@ -26,7 +26,6 @@ describe "Lumber", () ->
   it "should export core transports", ->
     assert.isFunction lumber.transports.Console
     assert.isFunction lumber.transports.File
-    assert.isFunction lumber.transports.Webservice
 
   it "should export core encoders", ->
     assert.isFunction lumber.encoders.Json
