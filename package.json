@@ -20,7 +20,8 @@
   "devDependencies": {
     "coffee-script": "1.3.3",
     "mocha": "1.4.2",
-    "chai": "1.2.0"
+    "chai": "1.2.0",
+    "timekeeper": "0.0.3"
   },
   "main": "./lib/lumber",
   "scripts": {
