@@ -70,7 +70,6 @@ class File extends events.EventEmitter
 
       #check if logs need to be rotated
       if @_needsToRotateLogs()
-        console.log 'needs to rotate logs'
         @_rotateLogs (err) ->
           todaysDate = new Date()
           cb err  if cb
@@ -81,11 +80,9 @@ class File extends events.EventEmitter
 
       #after msg is drained
       @_drain =>
-        console.log "if-not flush drain"
 
         #check if logs need to be rotated
         if @_needsToRotateLogs()
-          console.log 'needs to rotate logs'
           @_rotateLogs (err) ->
             todaysDate = new Date()
             cb err  if cb
@@ -113,8 +110,7 @@ class File extends events.EventEmitter
         mode: @fileMode
 
       @_stream.setMaxListeners Infinity
-      @_stream.on 'drain', ->
-        console.log 'draining stream'
+
       @once "flush", =>
         @_opening = false
         @emit "open", @filename
@@ -124,7 +120,6 @@ class File extends events.EventEmitter
 
   _close: (cb) ->
     if @_stream
-      console.log "close if stream"
       @_stream.on 'close', ->
         @emit "closed"
         cb null  if cb
@@ -133,7 +128,6 @@ class File extends events.EventEmitter
 
       #@_stream = null
     else
-      console.log "null stream"
       @_stream = null
       cb null  if cb
 
@@ -176,16 +170,13 @@ class File extends events.EventEmitter
     return @rotate and shouldIRotate
 
   _rotateLogs: (cb) ->
-    console.log "rotating logs"
 
     @_close =>
-      console.log "stream closed"
       #setup filenames to move
       from = @filename
       to = @filename + "." + dateFormat todaysDate, 'mm-dd-yyyy'
 
       #move files
-      console.log from, to
       fs.rename from, to, (err) =>
         console.log "renaming file #{from} #{to}", err
         return cb err  if cb and err
