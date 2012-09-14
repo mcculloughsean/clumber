@@ -80,7 +80,6 @@ class File extends events.EventEmitter
 
       #after msg is drained
       @_drain =>
-        console.log "drained to ", data,  @_stream
 
         #check if logs need to be rotated
         if @_needsToRotateLogs()
@@ -172,7 +171,6 @@ class File extends events.EventEmitter
 
   _rotateLogs: (cb) ->
     @_rotating = true
-    console.log "rotate"
     @_close =>
       #setup filenames to move
       from = @filename
@@ -180,7 +178,6 @@ class File extends events.EventEmitter
 
       #move files
       fs.rename from, to, (err) =>
-        console.log "renaming file #{from} #{to}", err
         @_rotating = false
         return cb err  if cb and err
         @emit 'rotate'
