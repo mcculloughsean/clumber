@@ -8,6 +8,7 @@ fs = require "fs"
 path = require "path"
 mocha = require "mocha"
 assert = require("chai").assert
+dateFormat = require "dateformat"
 tk = require 'timekeeper'
 lumber = require "../../../src/lumber"
 
@@ -85,32 +86,34 @@ describe "File", ->
 
     describe "when the date changes", ->
       tomorrow = (Date.now() + 86400000)
+      newLogFilePath = path.resolve("app.log" + "." + dateFormat Date.now(), 'mm-dd-yyyy')
+      oldLogFilePath = path.resolve 'app.log'
 
       beforeEach (done) ->
         tk.travel tomorrow
         logger.log "info", "A message, tomorrow"
-        logger.log "info", "Another message, tomorrow"
+        logger.log "error", "An error from the future"
         logger.on "log", (err, msg, level, name, filename) ->
-          return unless msg?.match /tomorrow/
+          return unless msg?.match /future/
           logResponse = { msg, level, name, filename }
           done err
 
-      afterEach () ->
+      after () ->
         tk.reset()
         try
-          fs.unlinkSync path.resolve "app.log" + "." + dateFormat todaysDate, 'mm-dd-yyyy'
+          fs.unlinkSync path.resolve newLogFilePath
 
       it "writes to the main log", () ->
         f = undefined
         try
-          f = fs.statSync path.resolve "app.log"
+          f = fs.statSync oldLogFilePath
         assert.isTrue !!f
 
       it "writes to the main log", () ->
         f = undefined
         try
-          f = fs.statSync path.resolve "app.log"
+          f = fs.statSync oldLogFilePath
         assert.isTrue !!f
 
       it "writes properly enocoded data", () ->
-        assert.equal logResponse.msg.trim(), fs.readFileSync(path.resolve("app.log"), "utf8").trim()
+        assert.equal logResponse.msg.trim(), fs.readFileSync(newLogFilePath, "utf8").trim()

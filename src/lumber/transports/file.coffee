@@ -34,7 +34,7 @@ class File extends events.EventEmitter
     @filemode = lumber.util.checkOption options.filemode, "0666"
     @maxsize = lumber.util.checkOption options.maxsize, 52428800  #50MB
     @rotate = lumber.util.checkOption options.rotate, false
-    @_size = 0
+    @_rotating = false
     @_buffer = []
     @name = "file"
     if typeof (@encoder) is "string"
@@ -53,7 +53,7 @@ class File extends events.EventEmitter
   log: (args, cb) ->
     msg = @encoder.encode args.level, args.msg, args.meta
     @_open (buff) =>
-      if buff
+      if buff or @_rotating
         @_buffer.push [msg, args, cb]
       else
         @_write msg + "\n", (err) =>
@@ -80,6 +80,7 @@ class File extends events.EventEmitter
 
       #after msg is drained
       @_drain =>
+        console.log "drained to ", data,  @_stream
 
         #check if logs need to be rotated
         if @_needsToRotateLogs()
@@ -167,10 +168,11 @@ class File extends events.EventEmitter
       d.getMonth() == todaysDate.getMonth() and
       d.getYear() == todaysDate.getYear())
 
-    return @rotate and shouldIRotate
+    return !@_rotating and @rotate and shouldIRotate
 
   _rotateLogs: (cb) ->
-
+    @_rotating = true
+    console.log "rotate"
     @_close =>
       #setup filenames to move
       from = @filename
@@ -179,8 +181,10 @@ class File extends events.EventEmitter
       #move files
       fs.rename from, to, (err) =>
         console.log "renaming file #{from} #{to}", err
+        @_rotating = false
         return cb err  if cb and err
         @emit 'rotate'
+        @_flush()
         return cb()
 
 module.exports.File = File
