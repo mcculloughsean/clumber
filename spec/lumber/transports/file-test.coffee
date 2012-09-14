@@ -8,6 +8,7 @@ fs = require "fs"
 path = require "path"
 mocha = require "mocha"
 assert = require("chai").assert
+tk = require 'timekeeper'
 lumber = require "../../../src/lumber"
 
 trans = undefined
@@ -54,3 +55,62 @@ describe "File", ->
     it "writes properly enocoded data", () ->
       assert.equal logResponse.msg.trim(), fs.readFileSync(path.resolve("app.log"), "utf8").trim()
 
+  logger = undefined
+  describe 'rotating logs', () ->
+    oldDate = undefined
+    logResponse = undefined
+    beforeEach (done) ->
+      try
+        fs.unlinkSync path.resolve "app.log"
+      trans = new lumber.transports.File rotate: true
+      logger = new lumber.Logger transports: [trans]
+      logger.log "info", "A message, today"
+      logger.on "log", (err, msg, level, name, filename) ->
+        return unless msg?.match /today/
+        logResponse = { msg, level, name, filename }
+        done err
+
+    afterEach ->
+      try
+        fs.unlinkSync path.resolve "app.log"
+
+    it "creates the proper file", () ->
+      f = undefined
+      try
+        f = fs.statSync path.resolve "app.log"
+      assert.isTrue !!f
+
+    it "writes properly enocoded data", () ->
+      assert.equal logResponse.msg.trim(), fs.readFileSync(path.resolve("app.log"), "utf8").trim()
+
+    describe "when the date changes", ->
+      tomorrow = (Date.now() + 86400000)
+
+      beforeEach (done) ->
+        tk.travel tomorrow
+        logger.log "info", "A message, tomorrow"
+        logger.log "info", "Another message, tomorrow"
+        logger.on "log", (err, msg, level, name, filename) ->
+          return unless msg?.match /tomorrow/
+          logResponse = { msg, level, name, filename }
+          done err
+
+      afterEach () ->
+        tk.reset()
+        try
+          fs.unlinkSync path.resolve "app.log" + "." + dateFormat todaysDate, 'mm-dd-yyyy'
+
+      it "writes to the main log", () ->
+        f = undefined
+        try
+          f = fs.statSync path.resolve "app.log"
+        assert.isTrue !!f
+
+      it "writes to the main log", () ->
+        f = undefined
+        try
+          f = fs.statSync path.resolve "app.log"
+        assert.isTrue !!f
+
+      it "writes properly enocoded data", () ->
+        assert.equal logResponse.msg.trim(), fs.readFileSync(path.resolve("app.log"), "utf8").trim()

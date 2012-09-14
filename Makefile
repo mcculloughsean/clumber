@@ -6,6 +6,7 @@ all :
 
 test :
 	./node_modules/.bin/mocha \
+	 -t 20000 \
 	 --reporter list \
 	 --compilers coffee:coffee-script \
 	 --recursive \
