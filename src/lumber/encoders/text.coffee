@@ -28,6 +28,7 @@ class Text extends events.EventEmitter
     @timestamp = common.checkOption options.timestamp, false
     @headFormat = common.checkOption options.headFormat, "%l: "
     @dateFormat = common.checkOption options.dateFormat, "isoDateTime"
+    @messageFormatter = common.checkOption options.messageFormat, @_messageFormatter
     @inspect = eyes.inspector stream: null
     @contentType = "text/plain"
     @encoding = "utf8"
@@ -45,7 +46,10 @@ class Text extends events.EventEmitter
   @param {object} meta The metadata of this log
   ###
   encode: (level, msg, meta) ->
-    head = ((if @colorize and @colors then @headFormat.replace("%l", common.colorize(level.toLowerCase(), level, @colors)).replace("%L", common.colorize(level.toUpperCase(), level, @colors)) else @headFormat.replace("%l", level.toLowerCase()).replace("%L", level.toUpperCase())))
+    head = if @colorize and @colors
+      @headFormat.replace("%l", common.colorize(level.toLowerCase(), level, @colors)).replace("%L", common.colorize(level.toUpperCase(), level, @colors))
+    else
+      @headFormat.replace("%l", level.toLowerCase()).replace("%L", level.toUpperCase())
     time = dateFormat(new Date(), @dateFormat)
 
     #have to color the meta cyan since that is default
@@ -53,7 +57,7 @@ class Text extends events.EventEmitter
     #color the entire object on null streams.
     #This should really be changed to use w/e the color is set for
     #ALL in eyes instead of assuming cyan
-    head + ((if @timestamp then "(" + time + ") " else "")) + msg + @_encodeMeta(meta)
+    head + (if @timestamp then "(" + time + ") " else "") + msg + @_encodeMeta(meta)
 
   _encodeMeta: (meta) ->
     return ""  unless meta
@@ -76,8 +80,8 @@ class Text extends events.EventEmitter
           temp = "  Error " + common.titleCase(prop)
 
         #color if necessary, and add value
-        temp = ((if c then temp[c] else temp))
-        temp += ": " + ((if prop is "stack" then "\n  " else "")) + meta[prop]
+        temp = if c then temp[c] else temp
+        temp += ": " + (if prop is "stack" then "\n  " else "") + meta[prop]
 
         #add to message
         msg.push temp
@@ -86,5 +90,8 @@ class Text extends events.EventEmitter
 
     #if not special case, just inspect with eyes
     "\n\u001b[36m" + @inspect(meta)
+
+  _messageFormatter: (message) ->
+    message
 
 module.exports = Text
