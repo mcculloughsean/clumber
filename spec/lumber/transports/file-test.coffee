@@ -86,7 +86,7 @@ describe "File", ->
 
     describe "when the date changes", ->
       tomorrow = (Date.now() + 86400000)
-      newLogFilePath = path.resolve("app.log" + "." + dateFormat Date.now(), 'mm-dd-yyyy')
+      newLogFilePath = path.resolve "app.log" + "." + dateFormat(Date.now(), 'mm-dd-yyyy')
       oldLogFilePath = path.resolve 'app.log'
 
       beforeEach (done) ->
