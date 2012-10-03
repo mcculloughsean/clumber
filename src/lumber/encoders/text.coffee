@@ -28,7 +28,7 @@ class Text extends events.EventEmitter
     @timestamp = common.checkOption options.timestamp, false
     @headFormat = common.checkOption options.headFormat, "%l: "
     @dateFormat = common.checkOption options.dateFormat, "isoDateTime"
-    @messageFormatter = common.checkOption options.messageFormat, @_messageFormatter
+    @metaFormatter = common.checkOption options.metaFormatter, @_metaFormatter
     @inspect = eyes.inspector stream: null
     @contentType = "text/plain"
     @encoding = "utf8"
@@ -88,10 +88,10 @@ class Text extends events.EventEmitter
 
       return "\n" + msg.join("\n")
 
+    @metaFormatter meta
+
+  _metaFormatter: (meta) ->
     #if not special case, just inspect with eyes
     "\n\u001b[36m" + @inspect(meta)
-
-  _messageFormatter: (message) ->
-    message
 
 module.exports = Text
