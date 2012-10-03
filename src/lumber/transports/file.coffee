@@ -24,7 +24,7 @@ File Transport
 @implements {Transport}
 ###
 class File extends events.EventEmitter
-  todaysDate = undefined
+  @_todaysDate = undefined
   constructor: (options={}) ->
     super()
 
@@ -32,7 +32,6 @@ class File extends events.EventEmitter
     @level = lumber.util.checkOption options.level, "info"
     @filename = lumber.util.checkOption options.filename, path.resolve("app.log")
     @filemode = lumber.util.checkOption options.filemode, "0666"
-    @maxsize = lumber.util.checkOption options.maxsize, 52428800  #50MB
     @rotate = lumber.util.checkOption options.rotate, false
     @_rotating = false
     @_buffer = []
@@ -44,7 +43,7 @@ class File extends events.EventEmitter
       else
         throw new Error("Unknown encoder passed: " + @encoder)
     @encoding = @encoder.encoding
-    todaysDate = new Date()
+    @_todaysDate = new Date()
 
   #Logs the string to the specified file
   #@param {object} args The arguments for the log
@@ -61,45 +60,41 @@ class File extends events.EventEmitter
 
 
   _write: (data, cb) ->
-    #add size of this new message
-    @_size += data.length
-
-    #write to stream
-    flushed = @_stream.write data, @encoding
-    if flushed
-
+    if @_stream.write data, @encoding
       #check if logs need to be rotated
-      if @_needsToRotateLogs()
-        @_rotateLogs (err) ->
-          todaysDate = new Date()
-          cb err  if cb
+      @_rotateLogsIfNecessary cb
 
-      else
-        cb null  if cb
     else
-
       #after msg is drained
       @_drain =>
-
         #check if logs need to be rotated
-        if @_needsToRotateLogs()
-          @_rotateLogs (err) ->
-            todaysDate = new Date()
-            cb err  if cb
-
-        else
-          cb null  if cb
+        @_rotateLogsIfNecessary cb
 
 
+  _rotateLogsIfNecessary: (cb) ->
+    if @_needsToRotateLogs()
+      @_rotateLogs (err) =>
+        @_todaysDate = new Date()
+        cb err if cb
+    else
+      cb null if cb
+
+  # Helper to open up a new stream. This function is called every time write is called.
+  # It takes a callback that is called with either 'true' or 'false' depending on the state
+  # of the stream
+  # 'false' means that the message should be buffered and then written to the stream when
+  # the 'flush' command is run it will drain all the buffered messages to the stream
+  # and emit a 'drain' event
+  # 'true' means the message was directly written to file
   _open: (cb) ->
     if @_opening
       cb true  if cb
-    else if @_stream
 
+    else if @_stream
       #already have an open stream
       cb false  if cb
-    else
 
+    else
       #need to open new stream, buffer msg
       cb true  if cb
 
@@ -126,7 +121,7 @@ class File extends events.EventEmitter
       @_stream.end()
       @_stream.destroySoon()
 
-      #@_stream = null
+      @_stream = null
     else
       @_stream = null
       cb null  if cb
@@ -163,9 +158,9 @@ class File extends events.EventEmitter
   _needsToRotateLogs: () ->
     d = new Date()
 
-    shouldIRotate = !(d.getDate() == todaysDate.getDate() and
-      d.getMonth() == todaysDate.getMonth() and
-      d.getYear() == todaysDate.getYear())
+    shouldIRotate = !(d.getDate() == @_todaysDate.getDate() and
+      d.getMonth() == @_todaysDate.getMonth() and
+      d.getYear() == @_todaysDate.getYear())
 
     return !@_rotating and @rotate and shouldIRotate
 
@@ -174,12 +169,14 @@ class File extends events.EventEmitter
     @_close =>
       #setup filenames to move
       from = @filename
-      to = @filename + "." + dateFormat todaysDate, 'mm-dd-yyyy'
+      to = @filename + "." + dateFormat @_todaysDate, 'mm-dd-yyyy'
 
       #move files
       fs.rename from, to, (err) =>
         @_rotating = false
+
         return cb err  if cb and err
+
         @emit 'rotate'
         @_flush()
         return cb()
