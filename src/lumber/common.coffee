@@ -92,30 +92,8 @@ common.prepareArgs = (args) ->
   fargs = undefined
   lmsg = args[2]
 
-  #if meta is a string, we consider it the message
-  #if typeof (meta) is "string"
-    #argStart = 2
-    #msg = meta
-    #meta = null
+  if typeof meta is 'function'
+    cb = meta
+    meta = undefined
 
-  #if cb is not a func, then all left are format args
-  #if typeof (cb) isnt "function"
-    #cb = null
-    #fargs = args.slice(argStart)
-
-  #if it is, then only upto the last item is format args
-  #else
-    #fargs = args.slice(argStart, args.length - 1)
-
-  #at this point if msg is a function, its the callback
-  #if typeof (msg) is "function"
-    #cb = msg
-    #msg = ""
-
-  #if we have format args, then lets apply them
-  #if fargs.length
-
-    ##put msg on and apply to util.format
-    #fargs.unshift msg
-    #msg = util.format.apply(null, fargs)
   {level, msg, meta, cb}
