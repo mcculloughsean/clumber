@@ -46,7 +46,7 @@ class Logger extends events.EventEmitter
   #////////
   # Public Methods
   #/////////////////////////
-  log: =>
+  log: ->
     args = lumber.util.prepareArgs(Array::slice.call(arguments))
     cb = args.cb
     done = 0

@@ -46,7 +46,7 @@ Generates a random GUID
 @return {string} GUID
 ###
 common.generateGuid = ->
-  
+
   ###
   Generates 4 hex characters
   @return {string} 4 character hex string
@@ -85,40 +85,37 @@ Prepares an arguments array for use by a log function
 @param {array} args The arguments to prepare
 ###
 common.prepareArgs = (args) ->
-  obj =
-    level: args[0]
-    meta: args[1]
-    msg: args[2]
-    cb: args[args.length - 1]
+  [level, msg, meta, cb] = args
+  #console.log args
 
-  argStart = 3
+  argStart = 2
   fargs = undefined
   lmsg = args[2]
-  
+
   #if meta is a string, we consider it the message
-  if typeof (obj.meta) is "string"
-    argStart = 2
-    obj.msg = obj.meta
-    obj.meta = null
-  
+  #if typeof (meta) is "string"
+    #argStart = 2
+    #msg = meta
+    #meta = null
+
   #if cb is not a func, then all left are format args
-  unless typeof (obj.cb) is "function"
-    obj.cb = null
-    fargs = args.slice(argStart)
-  
+  #if typeof (cb) isnt "function"
+    #cb = null
+    #fargs = args.slice(argStart)
+
   #if it is, then only upto the last item is format args
-  else
-    fargs = args.slice(argStart, args.length - 1)
-  
+  #else
+    #fargs = args.slice(argStart, args.length - 1)
+
   #at this point if msg is a function, its the callback
-  if typeof (obj.msg) is "function"
-    obj.cb = obj.msg
-    obj.msg = ""
-  
+  #if typeof (msg) is "function"
+    #cb = msg
+    #msg = ""
+
   #if we have format args, then lets apply them
-  if fargs.length
-    
-    #put msg on and apply to util.format
-    fargs.unshift obj.msg
-    obj.msg = util.format.apply(null, fargs)
-  obj
+  #if fargs.length
+
+    ##put msg on and apply to util.format
+    #fargs.unshift msg
+    #msg = util.format.apply(null, fargs)
+  {level, msg, meta, cb}

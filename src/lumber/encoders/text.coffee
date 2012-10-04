@@ -34,7 +34,6 @@ class Text extends events.EventEmitter
     @encoding = "utf8"
 
 
-
   #////////
   # Public Methods
   #/////////////////////////
@@ -61,9 +60,8 @@ class Text extends events.EventEmitter
 
   _encodeMeta: (meta) ->
     return ""  unless meta
-
     #special error formatting
-    if meta.constructor is Error
+    if meta.constructor is Error and false
       c = (if @colorize then @colors.error or "red" else null)
       msg = []
       props = ["message", "name", "type", "stack", "arguments"]
