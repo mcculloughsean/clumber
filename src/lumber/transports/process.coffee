@@ -13,7 +13,7 @@ class Process extends events.EventEmitter
     @command = lumber.util.checkOption options.command, ['tee', '/dev/null']
     @encoder = lumber.util.checkOption options.encoder, "json"
     @level = lumber.util.checkOption options.level, "info"
-    @name = "file"
+    @name = "process"
     if typeof (@encoder) is "string"
       e = lumber.util.titleCase(@encoder)
       if lumber.encoders[e]
@@ -23,8 +23,8 @@ class Process extends events.EventEmitter
     @encoding = @encoder.encoding
 
     command = @command.shift()
-    console.log "COMMAND", command, @command
     @_childProcess = cp.spawn command, @command
+    @_childProcess.stdout.pipe(process.stdout)
 
   log: (args, cb) ->
     msg = @encoder.encode args.level, args.msg, args.meta

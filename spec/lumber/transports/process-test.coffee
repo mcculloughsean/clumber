@@ -9,7 +9,7 @@ lumber = require "../../../src/lumber"
 trans = logger = undefined
 mainLogFilePath = path.resolve 'app.log'
 describe "Process Transport", ->
-  beforeEach ->
+  before ->
     trans = new lumber.transports.Process
       command: [ __dirname + "/../../piper", mainLogFilePath ]
 
@@ -23,17 +23,17 @@ describe "Process Transport", ->
 
   describe "functionally", ->
     logResponse = undefined
-    beforeEach (done) ->
-      try
-        fs.unlinkSync mainLogFilePath
+    before (done) ->
       logger = new lumber.Logger(transports: [trans])
       logger.on "log", (err, msg, level, name, filename) ->
         return unless msg?
         logResponse = { msg, level, name }
-        done err
+        setTimeout () ->
+          done err
+        , 1000
       logger.log "info", "A message"
 
-    afterEach ->
+    after ->
       try
         fs.unlinkSync mainLogFilePath
 
@@ -45,7 +45,7 @@ describe "Process Transport", ->
 
     it "passes the correct params", () ->
       assert.equal logResponse.level, "info"
-      assert.equal logResponse.name, "file"
+      assert.equal logResponse.name, "process"
 
     it "writes properly enocoded data", () ->
       assert.equal logResponse.msg.trim(), fs.readFileSync(mainLogFilePath, "utf8").trim()
