@@ -1,7 +1,7 @@
 {
   "name": "clumber",
   "description": "A port of lumber in coffeescript",
-  "version": "0.1.0",
+  "version": "0.1.5",
   "author": "Sean McCullough <mcculloughsean@gmail.com>",
   "repository": {
     "type": "git",
