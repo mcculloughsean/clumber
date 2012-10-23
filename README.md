@@ -1,3 +1,5 @@
+[![build status](https://secure.travis-ci.org/mcculloughsean/clumber.png)](http://travis-ci.org/mcculloughsean/clumber)
+
 # Lumber (v0.0.5)
 
 ## Contents
@@ -96,7 +98,7 @@ logger = new lumber.Logger({
 		new lumber.transports.File()
 	]
 });
-	
+
 logger.log('info', 'Hey there!');
 //OR
 logger.info('Hey there!');
@@ -113,7 +115,7 @@ logger = new lumber.Logger({
 		new lumber.transports.File({ filename: 'debug.log', level: 'debug' })
 	]
 });
-	
+
 logger.info('Info message'); //logs to console & debug.log
 logger.error('Error message'); //logs to console, debug.log, and errors.log
 logger.debug('Debug message'); //logs to debug.log
@@ -153,7 +155,7 @@ var logger = new lumber.Logger({
 
 ### Custom Logging Levels
 
-You can pass your own levels and/or colors to a logger instance to override the defaults. Remember that any 
+You can pass your own levels and/or colors to a logger instance to override the defaults. Remember that any
 negative log level will be considered a "silent" level, which allows for a state that the logger does not log anything:
 
 ```javascript
@@ -170,7 +172,7 @@ var logger = new lumber.Logger({
 		please: 'grey'
 	}
 });
-	
+
 //now the logger has those levels as convenience functions
 logger.yoyo('Yo Yo Yo!');
 logger.please('fork me');
@@ -188,7 +190,7 @@ error that was thrown). Lumber allows you to pass in this extra data to be logge
 var fs = require('fs'),
 lumber = require('lumber'),
 logger = new lumber.Logger();
-	
+
 try {
     fs.statSync('doesnt_exist.file');
 } catch(e) {
@@ -209,7 +211,7 @@ logger = new lumber.Logger();
 
 logger.info('You can insert strings: %s, or numbers: %d, or event json: %j', 'like this one', 15, { hi: 'there' });
 //or logger.log('info', 'You can insert strings: %s, or numbers: %d, or event json: %j', 'like this one', 15, { hi: 'there' });
-	
+
 //You can still pass meta data if you want to:
 logger.info({ meta: 'data' }, 'You can insert strings: %s, or numbers: %d, or event json: %j', 'like this one', 15, { hi: 'there' });
 //or logger.log('info', { meta: 'data' }, 'You can insert strings: %s, or numbers: %d, or event json: %j', 'like this one', 15, { hi: 'there' });
@@ -281,7 +283,7 @@ No extra information is sent.
 #### File Transport
 
  - `filename`: The resolved path to the file that was logged to
- 
+
 Example:
 
 ```javascript
@@ -306,7 +308,7 @@ logger.on('log', function(err, msg, level, name, filename) {
 	}
 });
 ```
- 
+
 #### Webservice Transport
 
  - `url`: The url that the data was sent to
@@ -329,7 +331,7 @@ logger.on('log', function(err, msg, level, name, url, statusCode, responseBody) 
 	    if(statusCode == 200) {
   		    //for this example, lets assume our service returns JSON
 			var res = JSON.parse(responseBody);
-			
+
 		    console.log(res.somethingOrAnotherReturned);
 		}
 	}
@@ -353,7 +355,7 @@ Here are the options common to all transports:
 
  - `encoder`: The encoder to use for this transport, defaults vary.
  - `level`: The log level of this transport, defaults to: logger level.
- 
+
 Each Transport has it's own additional options and defaults as well, only differences from the common list are mentioned:
 
 #### Console Transport
@@ -376,7 +378,7 @@ Each Transport has it's own additional options and defaults as well, only differ
  - `headers`: The headers to send with the request, defaults to the encoder's content type.
  - `secure`: Whether or not to use SSL, must be set for https requests, defaults to: `false`
  - `auth`: Authentication for basic auth, in the format `username:password`
- 
+
 ### Encoder Options
 
 Here are the options common to all encoders:
@@ -385,7 +387,7 @@ Here are the options common to all encoders:
  - `timestamp`: Whether or not to apply a timestamp when encoding the log, defaults vary.
  - `headFormat`: The format of the message "head", the head is a formatted way of printing the log level of this message, defaults vary.
  - `dateFormat`: The format of the timestamps on logs, uses [node-dateformat](https://github.com/felixge/node-dateformat), defaults to: `'isoDateTime'`
- 
+
 Each Encoder has it's own additional options and defaults as well, only differences from the common list are mentioned:
 
 #### Text Encoder
