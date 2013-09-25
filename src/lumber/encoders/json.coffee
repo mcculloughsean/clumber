@@ -12,6 +12,8 @@ MIT LICENSE
 util = require "util"
 events = require "events"
 dateFormat = require "dateformat"
+jsonSafe = require "json-stringify-safe"
+{pick, omit} = require "underscore"
 common = require "../common"
 
 ###
@@ -24,12 +26,28 @@ class Json extends events.EventEmitter
     super()
     options = options or {}
     @colorize = common.checkOption options.colorize, false
-    @timestamp = common.checkOption options.timestamp, true
     @headFormat = common.checkOption options.headFormat, "%L"
     @dateFormat = common.checkOption options.dateFormat, "isoDateTime"
     @contentType = "application/json"
     @encoding = "utf8"
 
+
+  _outputFormat: (obj) ->
+    jsonPair = (key, value) ->
+      "#{jsonSafe(key)}:#{jsonSafe(value)}"
+
+    orderedInnerStringify = (obj, keys) ->
+      (jsonPair key, obj[key] for key in keys).join ','
+
+    prioritizedKeys = ['timestamp', 'level']
+    prioritized = pick obj, prioritizedKeys
+    rest = omit obj, prioritizedKeys
+
+    restOfJson = jsonSafe rest
+    prioritizedJson = orderedInnerStringify obj, prioritizedKeys
+    prioritizedJson += ',' if restOfJson.length > 2
+
+    output = '{' + prioritizedJson + restOfJson.slice 1
 
 
   #////////
@@ -51,8 +69,8 @@ class Json extends events.EventEmitter
       head: head
       message: msg
 
-    obj.timestamp = time  if @timestamp
+    obj.timestamp = time
     obj.meta = meta  if meta
-    JSON.stringify obj
+    @_outputFormat obj
 
 module.exports = Json
