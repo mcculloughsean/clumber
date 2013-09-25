@@ -7,7 +7,13 @@
     "type": "git",
     "url": "https://github.com/mcculloughsean/clumber.git"
   },
-  "keywords": [ "log", "logging", "logger", "tools", "cli" ],
+  "keywords": [
+    "log",
+    "logging",
+    "logger",
+    "tools",
+    "cli"
+  ],
   "dependencies": {
     "colors": "0.6.x",
     "eyes": "0.1.x",
@@ -15,7 +21,9 @@
     "async": "0.1.x",
     "cycle": "1.0.x",
     "stack-trace": "0.0.x",
-    "dateformat": ">= 1"
+    "dateformat": ">= 1",
+    "underscore": "~1.5.2",
+    "json-stringify-safe": "~5.0.0"
   },
   "devDependencies": {
     "coffee-script": "1.3.3",
