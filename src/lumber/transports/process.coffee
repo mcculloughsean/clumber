@@ -5,12 +5,17 @@ events = require "events"
 dateFormat = require "dateformat"
 lumber = require "../../lumber"
 
+throwError = (command, args, error) ->
+  console.error "Error during lumber Process transport: #{command} #{args.join(' ')}"
+  console.error error.stack
+  process.exit(99)
+
 class Process extends events.EventEmitter
   constructor: (options={}) ->
     super()
 
     # Format [ "command", "list", "of", "args" ]
-    @command = lumber.util.checkOption options.command, ['tee', '/dev/null']
+    @arguments = lumber.util.checkOption options.command, ['tee', '/dev/null']
     @encoder = lumber.util.checkOption options.encoder, "json"
     @level = lumber.util.checkOption options.level, "info"
     @name = "process"
@@ -22,8 +27,10 @@ class Process extends events.EventEmitter
         throw new Error("Unknown encoder passed: " + @encoder)
     @encoding = @encoder.encoding
 
-    command = @command.shift()
-    @_childProcess = cp.spawn command, @command
+    @command = @arguments.shift()
+    @_childProcess = cp.spawn @command, @arguments
+    @_childProcess.on 'error', (error) =>
+      throwError @command, @arguments, error
     @_childProcess.stdout.pipe(process.stdout)
 
   log: (args, cb) ->
@@ -31,9 +38,7 @@ class Process extends events.EventEmitter
     @_write msg + "\n", (err) =>
       cb err, msg, args.level, @name  if cb
 
-
   _write: (data, cb) ->
-    @_childProcess.stdin.write data, @encoding
-    cb null
+    @_childProcess.stdin.write data, @encoding, cb
 
 module.exports = { Process }
