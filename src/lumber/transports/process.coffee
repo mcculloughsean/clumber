@@ -5,10 +5,10 @@ events = require "events"
 dateFormat = require "dateformat"
 lumber = require "../../lumber"
 
-throwError = (command, args, error) ->
-  console.error "Error during lumber Process transport: #{command} #{args.join(' ')}"
-  console.error error.stack
-  process.exit(99)
+buildError = (command, args, error) ->
+  message = "Error during lumber Process transport: #{command} #{args.join(' ')}"
+  error.stack = "#{message}\n#{error.stack}"
+  error
 
 class Process extends events.EventEmitter
   constructor: (options={}) ->
@@ -30,7 +30,7 @@ class Process extends events.EventEmitter
     @command = @arguments.shift()
     @_childProcess = cp.spawn @command, @arguments
     @_childProcess.on 'error', (error) =>
-      throwError @command, @arguments, error
+      throw buildError(@command, @arguments, error)
     @_childProcess.stdout.pipe(process.stdout)
 
   log: (args, cb) ->
@@ -39,6 +39,10 @@ class Process extends events.EventEmitter
       cb err, msg, args.level, @name  if cb
 
   _write: (data, cb) ->
-    @_childProcess.stdin.write data, @encoding, cb
+    @_childProcess.stdin.write data, @encoding, (error) =>
+      if error?
+        cb buildError(@command, @arguments, error)
+      else
+        cb null
 
 module.exports = { Process }
